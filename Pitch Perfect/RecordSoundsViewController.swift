@@ -54,21 +54,24 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
         let dirPath = NSSearchPathForDirectoriesInDomains(
             .DocumentDirectory,
             .UserDomainMask,
-            true)[0] as! String
-        var currentDateTime = NSDate()
-        var formatter = NSDateFormatter()
+            true)[0] 
+        let currentDateTime = NSDate()
+        let formatter = NSDateFormatter()
         formatter.dateFormat = "yyyyMMdd-HHmmss"
-        var recordingName = formatter.stringFromDate(currentDateTime) + ".wav"
-        var pathArray = [dirPath, recordingName]
-        let filePath = NSURL.fileURLWithPathComponents(pathArray)
+        let recordingName = formatter.stringFromDate(currentDateTime) + ".wav"
+        let pathArray = [dirPath, recordingName]
+        let filePath = NSURL.fileURLWithPathComponents(pathArray)!
         
-        var audioSession = AVAudioSession.sharedInstance()
-        audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord, error: nil)
-        audioRecorder = AVAudioRecorder(URL: filePath, settings: nil, error: nil)
-        audioRecorder.delegate = self
-        audioRecorder.meteringEnabled = true
-        audioRecorder.prepareToRecord()
-        audioRecorder.record()
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord)
+            audioRecorder = try AVAudioRecorder(URL: filePath, settings: [:])
+            audioRecorder.delegate = self
+            audioRecorder.meteringEnabled = true
+            audioRecorder.prepareToRecord()
+            audioRecorder.record()
+        } catch _ {
+        }
     }
     
     @IBAction func pauseRecording(sender: UIButton) {
@@ -106,11 +109,14 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
         
         // stop recording audio
         audioRecorder.stop()
-        var audioSession = AVAudioSession.sharedInstance()
-        audioSession.setActive(false, error: nil)
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setActive(false)
+        } catch _ {
+        }
     }
     
-    func audioRecorderDidFinishRecording(recorder: AVAudioRecorder!, successfully flag: Bool) {
+    func audioRecorderDidFinishRecording(recorder: AVAudioRecorder, successfully flag: Bool) {
         if flag {
             // save recorded audio
             recordedAudio = RecordedAudio(title: recorder.url.lastPathComponent!, filePath: recorder.url)

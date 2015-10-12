@@ -19,18 +19,21 @@ class PlaySoundsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        var audioSession = AVAudioSession.sharedInstance()
+        let audioSession = AVAudioSession.sharedInstance()
         
-        // when the app is run on a device, the sound plays with a low volume on the front-speaker (receiver)
-        // we want to play the sound instead on the bottom speaker, the following line is a fix for that
-        audioSession.overrideOutputAudioPort(AVAudioSessionPortOverride.Speaker, error: nil)
+        do {
+            // when the app is run on a device, the sound plays with a low volume on the front-speaker (receiver)
+            // we want to play the sound instead on the bottom speaker, the following line is a fix for that
+            try audioSession.overrideOutputAudioPort(AVAudioSessionPortOverride.Speaker)
+        } catch _ {
+        }
         
-        audioPlayer = AVAudioPlayer(contentsOfURL: receivedAudio.filePath, error: nil)
+        audioPlayer = try? AVAudioPlayer(contentsOfURL: receivedAudio.filePath)
         audioPlayer.prepareToPlay()
         audioPlayer.enableRate = true
         
         audioEngine = AVAudioEngine()
-        audioFile = AVAudioFile(forReading: receivedAudio.filePath, error: nil)
+        audioFile = try? AVAudioFile(forReading: receivedAudio.filePath)
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -55,7 +58,7 @@ class PlaySoundsViewController: UIViewController {
     }
     
     @IBAction func playEchoAudio(sender: UIButton) {
-        var audioUnitReverb = AVAudioUnitDistortion()
+        let audioUnitReverb = AVAudioUnitDistortion()
         audioUnitReverb.loadFactoryPreset(AVAudioUnitDistortionPreset.MultiEcho2)
         audioUnitReverb.preGain = -3
         audioUnitReverb.wetDryMix = 100
@@ -63,14 +66,14 @@ class PlaySoundsViewController: UIViewController {
     }
     
     @IBAction func playReverbAudio(sender: UIButton) {
-        var audioUnitReverb = AVAudioUnitReverb()
+        let audioUnitReverb = AVAudioUnitReverb()
         audioUnitReverb.loadFactoryPreset(AVAudioUnitReverbPreset.Plate)
         audioUnitReverb.wetDryMix = 75
         playAudioWithSpecialEffects(audioUnitReverb)
     }
     
     private func playAudioWithVariablePitch(pitch: Float) {
-        var changePitchEffect = AVAudioUnitTimePitch()
+        let changePitchEffect = AVAudioUnitTimePitch()
         changePitchEffect.pitch = pitch
         playAudioWithSpecialEffects(changePitchEffect)
     }
@@ -80,7 +83,7 @@ class PlaySoundsViewController: UIViewController {
         audioEngine.stop()
         audioEngine.reset()
         
-        var audioPlayerNode = AVAudioPlayerNode()
+        let audioPlayerNode = AVAudioPlayerNode()
         audioEngine.attachNode(audioPlayerNode)
         
         // code has been refactored here so that audioUnit can be set 
@@ -91,7 +94,11 @@ class PlaySoundsViewController: UIViewController {
         audioEngine.connect(audioUnit, to: audioEngine.outputNode, format: nil)
         
         audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
-        audioEngine.startAndReturnError(nil)
+        do {
+            try audioEngine.start()
+//            try audioEngine.startAndReturnError()
+        } catch _ {
+        }
         
         audioPlayerNode.play()
     }

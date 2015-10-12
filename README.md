@@ -1,7 +1,5 @@
 # Pitch-Perfect
 
-Platform: iOS 8.x or later devices
-
 This app allows users to record their voices and apply various audio special effects.
 The following audio effects are available:
 
@@ -11,6 +9,10 @@ The following audio effects are available:
 4. Darthvader effect
 5. Echo effect
 6. Reverb effect
+
+**Video demo**
+
+https://www.youtube.com/watch?v=aM04NOPibeM
 
 ![Pitch Perfect tap to record screen](https://raw.githubusercontent.com/sanjibahmad/Pitch-Perfect/master/Screenshots/pitch-perfect-begin-record.png)
 ![Pitch Perfect recording audio screen](https://raw.githubusercontent.com/sanjibahmad/Pitch-Perfect/master/Screenshots/pitch-perfect-recording.png)
